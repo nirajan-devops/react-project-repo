@@ -1,0 +1,13 @@
+name: Trigger Central CI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  call-ci:
+    uses: nirajan-devops/ci-workflows/.github/workflows/react.yml@main
+    with:
+      app_name: hello-react-app
+    secrets:
+      GH_PAT: ${{ secrets.GH_PAT }}
