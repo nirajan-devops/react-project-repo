@@ -1,0 +1,61 @@
+name: Deploy React App via Docker
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t react-app .
+
+      - name: Save Docker image to tar
+        run: docker save react-app -o react-app.tar
+
+      - name: Copy image to EC2 via SCP
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "react-app.tar"
+          target: "/home/${{ secrets.USERNAME }}/"
+          tar_dereference: false
+          strip_components: false
+          overwrite: true
+          rm: false
+
+      - name: Install Docker and Deploy on EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Install Docker if it's not present
+            if ! command -v docker &> /dev/null; then
+              echo "Installing Docker..."
+              sudo apt update
+              sudo apt install -y docker.io
+              sudo systemctl enable docker
+              sudo systemctl start docker
+            fi
+
+            cd /home/${{ secrets.USERNAME }}
+
+            echo "Loading Docker image..."
+            ls -lh react-app.tar
+            sudo docker load -i react-app.tar
+
+            echo "Stopping existing container if running..."
+            sudo docker stop react-app || true
+            sudo docker rm react-app || true
+
+            echo "Running new React container..."
+            sudo docker run -d -p 80:80 --name react-app react-app
