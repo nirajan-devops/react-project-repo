@@ -1,13 +1,20 @@
-name: Trigger Central CI
+name: Deploy Dockerized App    # ##This workflow deploys a Dockerized application to an EC2 instance using GitHub Actions.
 
 on:
   push:
     branches: [main]
 
 jobs:
-  call-ci:
-    uses: nirajan-devops/ci-workflows/.github/workflows/react.yml@main
+  deploy:
+    uses: nirajan-devops/ci-workflows/.github/workflows/cicd.yml@main
     with:
-      app_name: hello-react-app
-      artifact_name: hello-react-app-build
-    
+      image-name: reactjs-app
+      container-name: reactjs-app
+      port: "3000"
+    secrets:
+      HOST: ${{ secrets.HOST }}
+      USERNAME: ${{ secrets.USERNAME }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+      GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
