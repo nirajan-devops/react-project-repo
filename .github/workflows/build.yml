@@ -1,4 +1,4 @@
-name: Deploy Dockerized App    ## This workflow deploys a Dockerized application to an EC2 instance using GitHub Actions.
+name: Deploy Dockerized App    ### This workflow deploys a Dockerized application to an EC2 instance using GitHub Actions.
 
 on:
   push:
