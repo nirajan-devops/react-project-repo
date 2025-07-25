@@ -11,6 +11,7 @@ jobs:
       image-name: reactjs-app
       container-name: reactjs-app
       port: "3000"
+      container-port: "80"
     secrets:
       HOST: ${{ secrets.HOST }}
       USERNAME: ${{ secrets.USERNAME }}
